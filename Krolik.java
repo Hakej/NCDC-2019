@@ -5,74 +5,60 @@ import java.util.Scanner;
 
 public class Krolik {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args){
         String searchedElementInput = "";
-        if(args.length > 0)
-        {
+        if(args.length > 0){
             searchedElementInput = args[0];
-            searchedElementInput = searchedElementInput.replace("'", "");
+            //searchedElementInput = searchedElementInput.replace("'", ""); // NCDC error?
         }
 
         String searchedElement = "{".concat(searchedElementInput).concat("}");
-        List<List<String>> table = getTableFromFile();
-        int searchedColumn = findColumnByElement(table, searchedElement);
+        List<List<String>> listOfLists = getListOfListsFromFile();
 
-        if(searchedColumn == -1) // if element was not found OR if there is more than 1 element in the table
-        {
-            System.out.println("klops");
-        }
-        else
-        {
+        try{
+            int searchedColumnIndex = findColumnIndexByElement(listOfLists, searchedElement);
             int sum = 0;
-            for (List<String> strings : table)
-            {
-                try
-                {
-                    sum += Integer.parseInt(strings.get(searchedColumn));
-                }
-                catch (NumberFormatException expected)
-                {
+            for (List<String> strings : listOfLists){
+                try{
+                    sum += Integer.parseInt(strings.get(searchedColumnIndex));
+                }catch(NumberFormatException expected){
                     // parseInt has failed, ignore it
                 }
             }
             System.out.println(sum);
+        }catch(InvalidElementException IEE){
+            System.out.println(IEE.getMessage());
         }
     } // main
 
-    private static List<List<String>> getTableFromFile()
-    {
-        List<List<String>> table = new ArrayList<>();
+    private static List<List<String>> getListOfListsFromFile(){
+        List<List<String>> listOfLists = new ArrayList<>();
         Scanner csvFileBuffer = new Scanner(System.in);
-        String cvsSplitBy = ",";
+        String csvSplitBy = ",";
         String line = "";
-        while (csvFileBuffer.hasNext())
-        {
+        while (csvFileBuffer.hasNext()){
             line = csvFileBuffer.nextLine();
-            List<String> wholeRow = Arrays.asList(line.split(cvsSplitBy));
-            table.add(wholeRow);
+            List<String> wholeRow = Arrays.asList(line.split(csvSplitBy));
+            listOfLists.add(wholeRow);
         }
         csvFileBuffer.close();
-        return table;
+        return listOfLists;
     }
 
-    private static int findColumnByElement(List<List<String>> tableToSearch, String searchedElement)
-    {
-        int searchedColumn = -1;
-        for (List<String> strings : tableToSearch)
-        {
-            if ((strings.indexOf(searchedElement)) != -1)
-            {
-                if (searchedColumn != -1)
-                {
-                    return -1;
-                }
-                else
-                {
-                    searchedColumn = strings.indexOf(searchedElement);
-                }
+    private static int findColumnIndexByElement(List<List<String>> tableToSearch, String searchedElement) throws InvalidElementException{
+        int amountOfElemenentsFound = 0;
+        int indexOfSearchedElement = 0;
+        for (List<String> strings : tableToSearch){
+            if ((strings.indexOf(searchedElement)) != -1){
+                amountOfElemenentsFound++;
+                indexOfSearchedElement = strings.indexOf(searchedElement);
             }
         }
-        return searchedColumn;
+        if(amountOfElemenentsFound != 1){
+            throw new InvalidElementException("klops");
+        }
+        else{
+            return indexOfSearchedElement;
+        }
     }
 }
