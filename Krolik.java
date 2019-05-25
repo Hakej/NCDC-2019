@@ -21,19 +21,19 @@ public class Krolik {
         String searchedElement = "{".concat(searchedElementInput).concat("}");
         List<List<String>> listOfLists = getListOfListsFromFile();
 
-        try{
+        try {
             int searchedColumnIndex = findColumnIndexByElement(listOfLists, searchedElement);
             int sum = 0;
+            String stringToParse = "";
             for (List<String> strings : listOfLists){
-                try{
-                    sum += Integer.parseInt(strings.get(searchedColumnIndex));
-                }catch(NumberFormatException expected){
-                    // parseInt has failed, ignore it
+                stringToParse = strings.get(searchedColumnIndex);
+                if(tryParseInt(stringToParse)){
+                    sum += Integer.parseInt(stringToParse);
                 }
             }
             System.out.println(sum);
-        }catch(InvalidElementException IEE){
-            System.out.println(IEE.getMessage());
+        } catch(InvalidElementException iee) {
+            System.out.println(iee.getMessage());
         }
     } // main
 
@@ -65,6 +65,15 @@ public class Krolik {
         }
         else{
             return indexOfSearchedElement;
+        }
+    }
+
+    private static boolean tryParseInt(String value) {
+        try {
+            Integer.parseInt(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 }
