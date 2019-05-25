@@ -3,6 +3,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+class InvalidElementException extends Exception{
+    InvalidElementException(String s){
+        super(s);
+    }
+}
+
 public class Krolik {
 
     public static void main(String[] args){
