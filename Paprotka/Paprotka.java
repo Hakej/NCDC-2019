@@ -8,13 +8,13 @@ public class Paprotka {
         Integer pot = 0;
         List<Integer> primeFactorsFromInput = new ArrayList<>();
         try {
-            tableOfStrings = getTableOfStringsFromFile();
+            tableOfStrings = tableOfStringsFromFile();
             if (!isTableCorrectSize(tableOfStrings)) {
                 throw new Exception("klops");
             }
-            pot = getPotValue(tableOfStrings.get(0).get(0));
+            pot = parsePotValue(tableOfStrings.get(0).get(0));
             if (tableOfStrings.size() == 2) {
-                primeFactorsFromInput = getPrimeFactors(tableOfStrings.get(1));
+                primeFactorsFromInput = primeFactorsFromTable(tableOfStrings.get(1));
             }
 
             Integer multiplicationOfPrimeFactors = multiplyIntegers(primeFactorsFromInput);
@@ -26,8 +26,8 @@ public class Paprotka {
                 } else if (multiplicationOfPrimeFactors > pot) {
                     throw new Exception("klops");
                 } else {
-                    List<Integer> primeFactorsOfPot = getFactors(pot);
-                    List<Integer> missingFactors = getMissingFactors(primeFactorsOfPot, primeFactorsFromInput);
+                    List<Integer> primeFactorsOfPot = primeFactorsOfValue(pot);
+                    List<Integer> missingFactors = missingFactors(primeFactorsOfPot, primeFactorsFromInput);
                     System.out.println(pot);
                     System.out.println(missingFactors.toString().replace("[", "").replace("]", ""));
                 }
@@ -36,7 +36,7 @@ public class Paprotka {
             System.out.println(klopsException.getMessage());
         }
     } // main
-    private static List<Integer> getMissingFactors(List<Integer> primeFactorsOfPot, List<Integer> primeFactorsFromInput) {
+    private static List<Integer> missingFactors(List<Integer> primeFactorsOfPot, List<Integer> primeFactorsFromInput) {
         if (primeFactorsFromInput.isEmpty()) {
             return primeFactorsOfPot;
         }
@@ -80,9 +80,9 @@ public class Paprotka {
         }
         return result;
     }
-    private static List<Integer> getPrimeFactors(List<String> strings) throws Exception {
+    private static List<Integer> primeFactorsFromTable(List<String> primeFactorsAsString) throws Exception {
         List<Integer> primeFactors = new ArrayList<>();
-        for (String singleCell : strings) {
+        for (String singleCell : primeFactorsAsString) {
             if (tryParseInteger(singleCell)) {
                 primeFactors.add(Integer.parseInt(singleCell));
             } else {
@@ -91,7 +91,7 @@ public class Paprotka {
         }
         return primeFactors;
     }
-    private static Integer getPotValue(String potValueAsString) throws Exception {
+    private static Integer parsePotValue(String potValueAsString) throws Exception {
         if (potValueAsString.isEmpty()) {
             return 0;
         }
@@ -106,7 +106,7 @@ public class Paprotka {
         }
         return tableToCheck.get(0).size() <= 1;
     }
-    private static List<List<String>> getTableOfStringsFromFile() {
+    private static List<List<String>> tableOfStringsFromFile() {
         List<List<String>> tableOfStrings = new ArrayList<>();
         Scanner csvFileBuffer = new Scanner(System.in);
         String csvSplitBy = ",";
@@ -128,7 +128,7 @@ public class Paprotka {
             return false;
         }
     }
-    private static List<Integer> getFactors(int value) {
+    private static List<Integer> primeFactorsOfValue(int value) {
         List<Integer> a = new ArrayList<>();
         int j;
         int num = value;

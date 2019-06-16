@@ -21,7 +21,7 @@ public class Trajektoria {
                 if (!isInputCorrect(height, width)) {
                     throw new Exception("klops");
                 } else {
-                    List<String> trajectoryOutput = getLinesToPrint(height, width);
+                    List<String> trajectoryOutput = linesToPrint(height, width);
                     printOutTrajectory(trajectoryOutput);
                 }
             }
@@ -30,18 +30,20 @@ public class Trajektoria {
         }
 
     } // main
-
     private static void printOutTrajectory(List<String> output) {
         for (String line : output) {
             System.out.println(line);
         }
     }
-
-    private static List<String> getLinesToPrint(int height, int width) {
+    private static List<String> linesToPrint(int height, int width) {
         List<String> linesToPrint = new ArrayList<>();
         int iterator = 1;
         if (height == 1) {
-            linesToPrint.add("*");
+            StringBuilder lineToAdd = new StringBuilder();
+            for (int i = 0; i < width; i++) {
+                lineToAdd.append("*");
+            }
+            linesToPrint.add(String.valueOf(lineToAdd));
             return linesToPrint;
         }
         for (int i = 0; i < height; i += iterator) {
@@ -71,7 +73,6 @@ public class Trajektoria {
         }
         return linesToPrint;
     }
-
     private static boolean isInputCorrect(int h, int w) {
         int allowedHeight = 50000;
         int allowedWidth = 50000;

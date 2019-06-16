@@ -4,19 +4,15 @@ import java.util.*;
 
 public class Wilk {
     public static void main(String[] args ) {
-        /*
-        TODO:
-        Problem z włączaniem programu dla
-        1. Wilk " < plik.csv
-        2. Wilk
-        */
         List<List<Double>> tableOfDoubles = new ArrayList<>();
         int allowedAmountOfTaps = 1000000;
         int allowedWidthOfTable = 2;
         boolean wasInputCorrect = true;
-
         try {
-            tableOfDoubles = getTableOfDoublesFromFile();
+            tableOfDoubles = tableOfDoublesFromFile();
+            if (!areTemperaturesCorrect(tableOfDoubles)) {
+                throw new Exception("klops");
+            }
             if (!isTableCorrectSize(tableOfDoubles, allowedWidthOfTable, allowedAmountOfTaps)) {
                 throw new Exception("klops");
             }
@@ -46,7 +42,21 @@ public class Wilk {
             System.out.println(roundDoubleValueToFiveDecimalPlaces(finalTemperature));
         }
     } // main
-    private static List<List<Double>> getTableOfDoublesFromFile() throws Exception {
+    private static boolean areTemperaturesCorrect(List<List<Double>> tableToCheck) {
+        boolean hasFirstIterationPassed = false;
+        for (List<Double> singleRow : tableToCheck) {
+            if (!hasFirstIterationPassed) {
+                hasFirstIterationPassed = true;
+                continue;
+            }
+            Double singleTemperature = singleRow.get(1);
+            if (singleTemperature < 1.0 || singleTemperature > 90.0) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private static List<List<Double>> tableOfDoublesFromFile() throws Exception {
         List<List<Double>> tableOfDoubles = new ArrayList<>();
         Scanner csvFileBuffer = new Scanner(System.in);
         String csvSplitBy = " ";
@@ -82,13 +92,13 @@ public class Wilk {
         if (tableToCheck.size() > allowedHeight) {
             return false;
         }
-        boolean firstIterationHasPassed = false;
+        boolean hasFirstIterationPassed = false;
         for (List<Double> singleRow : tableToCheck) {
-            if (!firstIterationHasPassed) {
+            if (!hasFirstIterationPassed) {
                 if (singleRow.size() != 1) {
                     return false;
                 }
-                firstIterationHasPassed = true;
+                hasFirstIterationPassed = true;
                 continue;
             }
             if(singleRow.size() > allowedWidth) {

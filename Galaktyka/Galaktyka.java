@@ -1,15 +1,19 @@
 package Galaktyka;
 
 public class Galaktyka {
+    public enum Direction {
+        TO_RIGHT, TO_BOTTOM, TO_LEFT, TO_TOP;
+    }
     public static void main(String[] args) {
         int telescopeSize;
         String orientation;
         try {
-            if (args.length != 2) {
+            if (args.length != 1) {
                 throw new Exception("klops");
             } else {
-                String sizeInput = args[0];
-                orientation = args[1];
+                String input = args[0];
+                String sizeInput = input.replaceAll("\\D+","");
+                orientation = input.replaceAll("\\d", "");
                 if (!tryParseInt(sizeInput)) {
                     throw new Exception("klops");
                 }
@@ -17,9 +21,9 @@ public class Galaktyka {
                 if (!isInputCorrect(telescopeSize, orientation)) {
                     throw new Exception("klops");
                 } else {
-                    String[][] galacticTable = getGalacticTable(telescopeSize);
+                    String[][] galacticTable = galacticTable(telescopeSize, orientation);
                     printOutGalactic(galacticTable);
-                    System.out.println(galacticTable);
+                    System.out.println(amountOfSpaces(telescopeSize));
                 }
             }
         } catch (Exception klopsException) {
@@ -29,59 +33,149 @@ public class Galaktyka {
     private static void printOutGalactic(String[][] galacticTable) {
         for (String[] row : galacticTable) {
             for (String cell : row) {
-                if (cell == null) {
-                    System.out.println(" ");
-                } else {
-                    System.out.print(cell);
-                }
+                System.out.print(cell);
             }
             System.out.println();
         }
     }
-    private static String[][] getGalacticTable(int telescopeSize) {
-        int height = telescopeSize + 3;
-        int width = telescopeSize + 2;
+    private static String[][] galacticTable(int telescopeSize, String orientation) {
+        int height = telescopeSize;
+        int width = telescopeSize;
+        if (orientation.equals("N") || orientation.equals("S")) {
+            height += 2;
+            width += 3;
+        } else {
+            height += 3;
+            width += 2;
+        }
+        Direction startingDirection = startingDirection(orientation);
+        Direction direction = startingDirection;
         String[][] galacticTable = new String[height][width];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                galacticTable[i][j] = " ";
+            }
+        }
         int T = 0;
         int L = 0;
         int B = height - 1;
         int R = width - 1;
-        int direction = 0;
+        int TLimit = 0;
+        int LLimit = 0;
+        int BLimit = 0;
+        int RLimit = 0;
+        switch(orientation) {
+            case "N":
+                RLimit++;
+                break;
+            case "S":
+                LLimit++;
+                break;
+            case "E":
+                BLimit++;
+                break;
+            default:
+                TLimit++;
+                break;
+        }
         int amountOfIterations = 0;
-        while (L <= R && T <= B && amountOfIterations < 9) {
+        int limit = (height * width) - amountOfSpaces(telescopeSize);
+        boolean hasFirstIterationPassed = false;
+        while ((L <= R) && (T <= B) && (amountOfIterations < limit)) {
+            if((direction == startingDirection) && (hasFirstIterationPassed)) {
+                if (startingDirection != Direction.TO_RIGHT) {
+                    L++;
+                }
+                if (startingDirection != Direction.TO_LEFT) {
+                    R--;
+                }
+                if (startingDirection != Direction.TO_TOP) {
+                    B--;
+                }
+                if (startingDirection != Direction.TO_BOTTOM) {
+                    T++;
+                }
+            }
             switch (direction) {
-                case 0:
-                    for (int i = L; i <= R; i++) {
+                case TO_RIGHT:
+                    for (int i = L; i <= R - RLimit; i++) {
                         galacticTable[T][i] = "*";
                         amountOfIterations++;
+                        if (amountOfIterations >= limit) {
+                            break;
+                        }
+                    }
+                    if ((direction == startingDirection) && (hasFirstIterationPassed)) {
+                        L++;
+                    } else {
+                        hasFirstIterationPassed = true;
                     }
                     T++;
+                    direction = Direction.TO_BOTTOM;
                     break;
-                case 1:
-                    for (int i = T; i <= B; i++) {
+                case TO_BOTTOM:
+                    for (int i = T; i <= B - BLimit; i++) {
                         galacticTable[i][R] = "*";
                         amountOfIterations++;
+                        if (amountOfIterations >= limit) {
+                            break;
+                        }
+                    }
+                    if ((direction == startingDirection) && (hasFirstIterationPassed)) {
+                        T++;
+                    } else {
+                        hasFirstIterationPassed = true;
                     }
                     R--;
+                    direction = Direction.TO_LEFT;
                     break;
-                case 2:
-                    for (int i = R; i >= L; i--) {
+                case TO_LEFT:
+                    for (int i = R; i >= L + LLimit; i--) {
                         galacticTable[B][i] = "*";
                         amountOfIterations++;
+                        if (amountOfIterations >= limit) {
+                            break;
+                        }
+                    }
+                    if ((direction == startingDirection) && (hasFirstIterationPassed)) {
+                        R--;
+                    } else {
+                        hasFirstIterationPassed = true;
                     }
                     B--;
+                    direction = Direction.TO_TOP;
                     break;
-                case 3:
-                    for (int i = B; i >= T; i--) {
+                case TO_TOP:
+                    for (int i = B; i >= T + TLimit; i--) {
                         galacticTable[i][L] = "*";
                         amountOfIterations++;
+                        if (amountOfIterations >= limit) {
+                            break;
+                        }
+                    }
+                    if ((direction == startingDirection) && (hasFirstIterationPassed)) {
+                        B--;
+                    } else {
+                        hasFirstIterationPassed = true;
                     }
                     L++;
+                    direction = Direction.TO_RIGHT;
                     break;
             }
-            direction = (direction + 1) % 4;
         }
         return galacticTable;
+    }
+    private static Direction startingDirection(String orientation) {
+        switch(orientation) {
+            case "N":
+                return Direction.TO_BOTTOM;
+            case "S":
+                return Direction.TO_TOP;
+            case "E":
+                return Direction.TO_LEFT;
+            default:
+                return Direction.TO_RIGHT;
+        }
     }
     private static boolean isInputCorrect(int telescopeSize, String orientation) {
         switch(orientation) {
@@ -105,5 +199,12 @@ public class Galaktyka {
         } catch (NumberFormatException nfe) {
             return false;
         }
+    }
+    private static int amountOfSpaces(int telescopeSize) {
+        int amountOfSpaces = 3;
+        for (int i = 1; i < telescopeSize; i++) {
+            amountOfSpaces += 3 + (i - 1);
+        }
+        return amountOfSpaces;
     }
 }
